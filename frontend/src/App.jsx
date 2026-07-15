@@ -3,13 +3,15 @@ import { useApp } from './context/AppContext';
 import Dashboard from './components/Dashboard';
 import LiveMonitor from './components/LiveMonitor';
 import FraudCases from './components/FraudCases';
+import KazakhstanMap from './components/KazakhstanMap';
 import { 
   ShieldAlert, 
   Activity, 
   BarChart3, 
   AlertOctagon, 
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Globe
 } from 'lucide-react';
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
         return <LiveMonitor />;
       case 'cases':
         return <FraudCases />;
+      case 'map':
+        return <KazakhstanMap />;
       default:
         return <Dashboard />;
     }
@@ -54,6 +58,18 @@ export default function App() {
           >
             <BarChart3 size={14} className="text-sentry-lime" />
             Дашборд
+          </button>
+
+          <button
+            onClick={() => setActiveTab('map')}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono uppercase tracking-wider transition rounded-md ${
+              activeTab === 'map'
+                ? 'bg-zinc-800 text-white font-bold border border-borderGrey'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Globe size={14} className="text-teal-400" />
+            Карта Фрода
           </button>
           
           <button

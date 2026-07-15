@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: antifraud-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Exclude backend venv to prevent host overrides in container
+      - /app/venv
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: antifraud-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Exclude node_modules to prevent host overrides in container
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
