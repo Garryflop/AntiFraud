@@ -124,15 +124,15 @@ ${item.rules_triggered.map((r, idx) => `
   };
 
   return (
-    <div className="flex h-full bg-bgDark">
+    <div className="flex h-[calc(100vh-140px)] min-h-[500px] bg-bgDark overflow-hidden">
       {/* Left Pane - List of incidents */}
-      <div className="w-1/3 border-r border-borderGrey flex flex-col bg-bgDark min-w-[320px]">
-        <div className="p-4 border-b border-borderGrey bg-bgCard">
+      <div className="w-1/3 border-r border-borderGrey flex flex-col bg-bgDark min-w-[320px] max-w-[400px] h-full overflow-hidden">
+        <div className="p-4 border-b border-borderGrey bg-bgCard shrink-0">
           <h2 className="text-sm font-mono font-bold uppercase tracking-wider text-gray-400">Список инцидентов ДЭР</h2>
-          <p className="text-[10px] text-gray-500">Автоматически заблокированные транзакции и подозрения</p>
+          <p className="text-[10px] text-gray-500">Автоматически заблокированные транзакции и подозрения ({cases.length})</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto divide-y divide-borderGrey">
+        <div className="flex-1 overflow-y-auto divide-y divide-borderGrey pr-0.5">
           {cases.length === 0 ? (
             <div className="p-6 text-center text-gray-500 font-mono text-xs">
               Нарушений не обнаружено.
@@ -177,7 +177,7 @@ ${item.rules_triggered.map((r, idx) => `
       </div>
 
       {/* Right Pane - Case Details & Breadcrumbs */}
-      <div className="flex-1 flex flex-col bg-[#141417] overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#141417] h-full overflow-y-auto">
         {selectedCase ? (
           <div className="p-6 space-y-6">
             
