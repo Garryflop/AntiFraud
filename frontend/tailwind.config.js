@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         // Charcoal/Deep gray colors requested by user
-        bgDark: "#121214",      # Deep dark canvas
-        bgCard: "#1e1e24",      # Lighter charcoal card
-        borderGrey: "#2d2d34",  # Subtle border gray
+        bgDark: "#121214",      // Deep dark canvas
+        bgCard: "#1e1e24",      // Lighter charcoal card
+        borderGrey: "#2d2d34",  // Subtle border gray
         
         // Sentry brand colors
         sentry: {
@@ -24,9 +24,9 @@ export default {
         
         // Risk status colors
         risk: {
-          blocked: "#f43f5e",   # Bright red/pink for critical fraud
-          suspicion: "#f59e0b", # Soft yellow/orange for medium risk
-          approved: "#10b981",  # Soft green for approved
+          blocked: "#f43f5e",   // Bright red/pink for critical fraud
+          suspicion: "#f59e0b", // Soft yellow/orange for medium risk
+          approved: "#10b981",  // Soft green for approved
         }
       },
       fontFamily: {

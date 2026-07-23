@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { useApp } from '../context/AppContext';
 import { 
   MapPin, 
   Building2, 
   ShieldAlert, 
-  CheckCircle, 
-  HelpCircle, 
   Activity, 
   ArrowRight,
   TrendingUp,
-  FileText
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move
 } from 'lucide-react';
+
+const geoUrl = "/kazakhstan.json";
 
 // Static clinic mappings to match backend database
 const CLINICS_BY_CITY = {
@@ -34,79 +38,61 @@ const CLINICS_BY_CITY = {
   ]
 };
 
-// All major cities for map render context
+// All major cities for georeferenced mapping (Longitude, Latitude)
 const CITIES = [
-  // Active Cities (from seed data)
-  { id: "astana", name: "Астана", x: 520, y: 190, active: true },
-  { id: "almaty", name: "Алматы", x: 740, y: 440, active: true },
-  { id: "shymkent", name: "Шымкент", x: 540, y: 490, active: true },
-  { id: "karaganda", name: "Караганда", x: 580, y: 260, active: true },
-  { id: "semey", name: "Семей", x: 820, y: 240, active: true },
+  { id: "astana", name: "Астана", coordinates: [71.4491, 51.1605], active: true },
+  { id: "almaty", name: "Алматы", coordinates: [76.8512, 43.2220], active: true },
+  { id: "shymkent", name: "Шымкент", coordinates: [69.5901, 42.3417], active: true },
+  { id: "karaganda", name: "Караганда", coordinates: [73.0878, 49.8047], active: true },
+  { id: "semey", name: "Семей", coordinates: [80.2458, 50.4111], active: true },
 
-  // Inactive background cities (for visual integrity)
-  { id: "atyrau", name: "Атырау", x: 160, y: 320, active: false },
-  { id: "aktau", name: "Актау", x: 130, y: 420, active: false },
-  { id: "aktobe", name: "Актобе", x: 320, y: 260, active: false },
-  { id: "uralsk", name: "Уральск", x: 120, y: 160, active: false },
-  { id: "kostanay", name: "Костанай", x: 420, y: 120, active: false },
-  { id: "pavlodar", name: "Павлодар", x: 700, y: 150, active: false },
-  { id: "oskemen", name: "Усть-Каменогорск", x: 880, y: 240, active: false },
-  { id: "petropavl", name: "Петропавловск", x: 520, y: 70, active: false },
-  { id: "kokshetau", name: "Кокшетау", x: 500, y: 120, active: false },
-  { id: "taraz", name: "Тараз", x: 600, y: 470, active: false },
-  { id: "kyzylorda", name: "Кызылорда", x: 400, y: 400, active: false },
-  { id: "turkestan", name: "Туркестан", x: 470, y: 460, active: false },
-  { id: "taldykorgan", name: "Талдыкорган", x: 770, y: 390, active: false },
-  { id: "zhezkazgan", name: "Жезказган", x: 460, y: 310, active: false }
-];
-
-// Connection lines representation (visual network effect)
-const CONNECTIONS = [
-  { from: "astana", to: "kokshetau" },
-  { from: "astana", to: "karaganda" },
-  { from: "astana", to: "pavlodar" },
-  { from: "astana", to: "kostanay" },
-  { from: "almaty", to: "taldykorgan" },
-  { from: "almaty", to: "taraz" },
-  { from: "almaty", to: "shymkent" },
-  { from: "shymkent", to: "taraz" },
-  { from: "shymkent", to: "turkestan" },
-  { from: "karaganda", to: "zhezkazgan" },
-  { from: "karaganda", to: "semey" },
-  { from: "semey", to: "oskemen" },
-  { from: "semey", to: "pavlodar" },
-  { from: "aktobe", to: "uralsk" },
-  { from: "aktobe", to: "atyrau" },
-  { from: "aktobe", to: "kostanay" },
-  { from: "aktobe", to: "kyzylorda" },
-  { from: "atyrau", to: "aktau" },
-  { from: "atyrau", to: "uralsk" },
-  { from: "kyzylorda", to: "turkestan" },
-  { from: "kyzylorda", to: "zhezkazgan" }
+  // Inactive background cities (for visual context)
+  { id: "atyrau", name: "Атырау", coordinates: [51.9168, 47.0945], active: false },
+  { id: "aktau", name: "Актау", coordinates: [51.1975, 43.6480], active: false },
+  { id: "aktobe", name: "Актобе", coordinates: [57.2072, 50.2839], active: false },
+  { id: "uralsk", name: "Уральск", coordinates: [51.3720, 51.2333], active: false },
+  { id: "kostanay", name: "Костанай", coordinates: [63.6354, 53.2198], active: false },
+  { id: "pavlodar", name: "Павлодар", coordinates: [76.9556, 52.2873], active: false },
+  { id: "oskemen", name: "Усть-Каменогорск", coordinates: [82.6149, 49.9543], active: false },
+  { id: "petropavl", name: "Петропавловск", coordinates: [69.1318, 54.8753], active: false },
+  { id: "kokshetau", name: "Кокшетау", coordinates: [69.3861, 53.2833], active: false },
+  { id: "taraz", name: "Тараз", coordinates: [71.3983, 42.9008], active: false },
+  { id: "kyzylorda", name: "Кызылорда", coordinates: [65.5110, 44.8398], active: false },
+  { id: "turkestan", name: "Туркестан", coordinates: [68.2711, 43.3031], active: false },
+  { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: false },
+  { id: "zhezkazgan", name: "Жезказган", coordinates: [67.7144, 47.7833], active: false }
 ];
 
 export default function KazakhstanMap() {
   const { stats, cases } = useApp();
   const [selectedCity, setSelectedCity] = useState(null);
   const [hoveredCity, setHoveredCity] = useState(null);
+  const [position, setPosition] = useState({ coordinates: [67.0, 48.0], zoom: 1 });
 
-  // Extract region distribution metrics
   const regionMetrics = stats.charts.region_distribution || [];
 
-  // Match coordinate nodes helper
-  const getCityCoords = (cityId) => {
-    const city = CITIES.find(c => c.id === cityId);
-    return city ? { x: city.x, y: city.y } : { x: 0, y: 0 };
+  // Maps GeoJSON region to DB city name
+  const mapGeoToCityName = (geo) => {
+    if (!geo || !geo.properties) return null;
+    const iso = geo.properties.shapeISO;
+    const name = geo.properties.shapeName;
+    
+    if (iso === "KZ-AST" || (name && name.toLowerCase() === "astana")) return "Астана";
+    if (iso === "KZ-ALA" || (name && name.toLowerCase() === "almaty")) return "Алматы";
+    if (iso === "KZ-KAR" || (name && name.toLowerCase().includes("karaganda"))) return "Караганда";
+    if (iso === "KZ-VOS" || (name && name.toLowerCase().includes("east kazakhstan"))) return "Семей";
+    if (iso === "KZ-YUZ" || (name && name.toLowerCase().includes("south kazakhstan"))) return "Шымкент";
+    return null;
   };
 
-  // Compile stats for active cities
   const getCityStats = (cityName) => {
-    const metrics = regionMetrics.find(r => r.region.toLowerCase() === cityName.toLowerCase());
+    if (!cityName) return { total: 0, approved: 0, suspicion: 0, blocked: 0, preventedLosses: 0 };
     
-    // Calculate total prevented losses for blocked cases in this city
-    const cityCases = cases.filter(c => c.clinic?.region.toLowerCase() === cityName.toLowerCase());
+    const metrics = regionMetrics.find(r => r && r.region && r.region.toLowerCase() === cityName.toLowerCase());
+    
+    const cityCases = cases.filter(c => c && c.clinic && c.clinic.region && c.clinic.region.toLowerCase() === cityName.toLowerCase());
     const preventedLosses = cityCases
-      .filter(c => c.status === 'BLOCKED')
+      .filter(c => c && c.status === 'BLOCKED')
       .reduce((sum, c) => sum + (c.service?.cost || 0), 0);
 
     return {
@@ -118,24 +104,34 @@ export default function KazakhstanMap() {
     };
   };
 
-  const getStatusColor = (cityStats) => {
-    if (cityStats.blocked > 0) return 'text-risk-blocked fill-risk-blocked';
-    if (cityStats.suspicion > 0) return 'text-risk-suspicion fill-risk-suspicion';
-    return 'text-risk-approved fill-risk-approved';
-  };
-
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'KZT', maximumFractionDigits: 0 }).format(val);
   };
 
-  // Click handler
-  const handleCityClick = (city) => {
-    if (!city.active) return;
-    const cityStats = getCityStats(city.name);
+  const handleCityClick = (cityName) => {
+    const cityObj = CITIES.find(c => c.name.toLowerCase() === cityName.toLowerCase());
+    if (!cityObj || !cityObj.active) return;
+    const cityStats = getCityStats(cityName);
     setSelectedCity({
-      ...city,
+      ...cityObj,
       stats: cityStats
     });
+  };
+
+  const handleZoomIn = () => {
+    setPosition((pos) => ({ ...pos, zoom: Math.min(pos.zoom * 1.4, 8) }));
+  };
+
+  const handleZoomOut = () => {
+    setPosition((pos) => ({ ...pos, zoom: Math.max(pos.zoom / 1.4, 1) }));
+  };
+
+  const handleReset = () => {
+    setPosition({ coordinates: [67.0, 48.0], zoom: 1 });
+  };
+
+  const handleMoveEnd = (newPosition) => {
+    setPosition(newPosition);
   };
 
   return (
@@ -145,129 +141,201 @@ export default function KazakhstanMap() {
         <div className="mb-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             География инцидентов и аномалий
-            <span className="text-xs bg-sentry-violetDeep/50 text-white border border-sentry-violet/40 font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider">КОНТРОЛЬ</span>
+            <span className="text-xs bg-sentry-violetDeep/50 text-white border border-sentry-violet/40 font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider">GEO-BOUNDARIES</span>
           </h2>
-          <p className="text-sm text-gray-400">Сетевая топология фрод-активности медицинских организаций в разрезе филиалов</p>
+          <p className="text-sm text-gray-400">Топологическое картирование нарушений с использованием картографических данных ADM1</p>
         </div>
 
-        {/* Outer Interactive SVG Container */}
-        <div className="flex-1 bg-[#100f13]/80 border border-borderGrey rounded-2xl relative p-4 flex items-center justify-center overflow-hidden">
-          {/* Cyber grid background layer */}
+        {/* Map Container */}
+        <div className="flex-1 bg-[#100f13]/85 border border-borderGrey rounded-2xl relative p-4 flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1e29_1px,transparent_1px),linear-gradient(to_bottom,#1f1e29_1px,transparent_1px)] bg-[size:30px_30px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
           
-          <svg 
-            className="w-full h-full max-h-[550px] relative z-10" 
-            viewBox="0 0 1000 550" 
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* 1. Styled Vector Borders of Kazakhstan (Simplified Polygonal Outline) */}
-            <path 
-              d="M 100,280 L 120,200 L 220,180 L 320,150 L 420,170 L 480,100 L 580,110 L 680,160 L 780,140 L 880,240 L 920,280 L 880,360 L 840,400 L 760,420 L 700,500 L 580,520 L 500,540 L 420,440 L 340,430 L 280,450 L 220,440 L 160,470 L 120,420 L 80,360 Z" 
-              className="fill-[#14131b] stroke-sentry-violet/20 stroke-[1.5] transition duration-300 hover:fill-[#171620] hover:stroke-sentry-violet/30"
-            />
+          <div className="w-full h-full relative z-10 flex items-center justify-center">
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{
+                scale: 1150 // Centered and scaled slightly smaller to fit Kazakhstan fully
+              }}
+              width={900}
+              height={500}
+              style={{ width: "100%", height: "100%", maxHeight: "500px" }}
+            >
+              <ZoomableGroup
+                zoom={position.zoom}
+                center={position.coordinates}
+                onMoveEnd={handleMoveEnd}
+                maxZoom={8}
+                minZoom={1}
+              >
+                {/* Region Boundaries Group */}
+                <Geographies geography={geoUrl}>
+                  {({ geographies }) =>
+                    geographies.map((geo) => {
+                      const mappedCity = mapGeoToCityName(geo);
+                      const isRegionActive = !!mappedCity;
+                      const cityStats = getCityStats(mappedCity);
+                      
+                      // Heatmap colors based on database status
+                      let fill = "#15141c";
+                      let stroke = "rgba(90, 59, 184, 0.35)";
+                      
+                      if (isRegionActive) {
+                        if (cityStats.blocked > 0) {
+                          fill = "rgba(239, 68, 68, 0.15)";
+                          stroke = "rgba(239, 68, 68, 0.6)";
+                        } else if (cityStats.suspicion > 0) {
+                          fill = "rgba(234, 179, 8, 0.12)";
+                          stroke = "rgba(234, 179, 8, 0.5)";
+                        } else {
+                          fill = "rgba(34, 197, 94, 0.08)";
+                          stroke = "rgba(34, 197, 94, 0.4)";
+                        }
+                      }
 
-            {/* 2. Cyber communication connection link paths */}
-            {CONNECTIONS.map((conn, idx) => {
-              const fromCoords = getCityCoords(conn.from);
-              const toCoords = getCityCoords(conn.to);
-              return (
-                <line
-                  key={idx}
-                  x1={fromCoords.x}
-                  y1={fromCoords.y}
-                  x2={toCoords.x}
-                  y2={toCoords.y}
-                  className="stroke-sentry-violet/10 stroke-[1] stroke-dasharray-[4,4]"
-                  strokeDasharray="4,4"
-                />
-              );
-            })}
+                      // Hover logic
+                      const isSelected = selectedCity && mappedCity && selectedCity.name === mappedCity;
 
-            {/* 3. Render Inactive background cities (Gray small dots) */}
-            {CITIES.filter(c => !c.active).map((city) => (
-              <g key={city.id} className="opacity-40 select-none">
-                <circle 
-                  cx={city.x} 
-                  cy={city.y} 
-                  r={3.5} 
-                  className="fill-gray-600 stroke-gray-800 stroke-[1]"
-                />
-                <text 
-                  x={city.x} 
-                  y={city.y - 8} 
-                  textAnchor="middle" 
-                  className="fill-gray-500 font-mono text-[9px] font-medium"
-                >
-                  {city.name}
-                </text>
-              </g>
-            ))}
+                      return (
+                        <Geography
+                          key={geo.rsmKey}
+                          geography={geo}
+                          onClick={() => mappedCity && handleCityClick(mappedCity)}
+                          onMouseEnter={() => mappedCity && setHoveredCity(CITIES.find(c => c.name === mappedCity))}
+                          onMouseLeave={() => setHoveredCity(null)}
+                          style={{
+                            default: {
+                              fill: isSelected ? "rgba(90, 59, 184, 0.25)" : fill,
+                              stroke: isSelected ? "#9065ff" : stroke,
+                              strokeWidth: isSelected ? 1.5 : 1.0,
+                              outline: "none",
+                              transition: "all 250ms ease"
+                            },
+                            hover: {
+                              fill: "rgba(90, 59, 184, 0.15)",
+                              stroke: "#9065ff",
+                              strokeWidth: 1.5,
+                              outline: "none",
+                              cursor: mappedCity ? "pointer" : "default"
+                            },
+                            pressed: {
+                              fill: "rgba(90, 59, 184, 0.35)",
+                              stroke: "#9065ff",
+                              strokeWidth: 1.5,
+                              outline: "none"
+                            }
+                          }}
+                        />
+                      );
+                    })
+                  }
+                </Geographies>
 
-            {/* 4. Render Active pulsing city nodes */}
-            {CITIES.filter(c => c.active).map((city) => {
-              const cityStats = getCityStats(city.name);
-              const isSelected = selectedCity?.id === city.id;
-              const isHovered = hoveredCity?.id === city.id;
-              
-              // Pulsing circle ring severity
-              let pulseColor = "stroke-risk-approved";
-              let dotColor = "fill-risk-approved";
-              if (cityStats.blocked > 0) {
-                pulseColor = "stroke-risk-blocked";
-                dotColor = "fill-risk-blocked";
-              } else if (cityStats.suspicion > 0) {
-                pulseColor = "stroke-risk-suspicion";
-                dotColor = "fill-risk-suspicion";
-              }
+                {/* Plotting Cities */}
+                {CITIES.map((city) => {
+                  const cityStats = getCityStats(city.name);
+                  const isSelected = selectedCity?.id === city.id;
+                  const isHovered = hoveredCity?.id === city.id;
 
-              return (
-                <g 
-                  key={city.id} 
-                  className="cursor-pointer"
-                  onClick={() => handleCityClick(city)}
-                  onMouseEnter={() => setHoveredCity(city)}
-                  onMouseLeave={() => setHoveredCity(null)}
-                >
-                  {/* Glowing/Pulsing outer circle ring */}
-                  <circle
-                    cx={city.x}
-                    cy={city.y}
-                    r={isSelected ? 16 : isHovered ? 12 : 8}
-                    className={`fill-none ${pulseColor} stroke-2 animate-ping opacity-25`}
-                    style={{ animationDuration: cityStats.blocked > 0 ? '1.5s' : '3s' }}
-                  />
+                  let pulseColor = "stroke-risk-approved";
+                  let dotColor = "fill-risk-approved";
+                  
+                  if (city.active) {
+                    if (cityStats.blocked > 0) {
+                      pulseColor = "stroke-risk-blocked";
+                      dotColor = "fill-risk-blocked";
+                    } else if (cityStats.suspicion > 0) {
+                      pulseColor = "stroke-risk-suspicion";
+                      dotColor = "fill-risk-suspicion";
+                    }
+                  } else {
+                    dotColor = "fill-gray-600";
+                  }
 
-                  {/* Node solid dot */}
-                  <circle
-                    cx={city.x}
-                    cy={city.y}
-                    r={isSelected ? 6 : 5}
-                    className={`${dotColor} stroke-[#111015] stroke-2 transition duration-200`}
-                  />
+                  return (
+                    <Marker 
+                      key={city.id} 
+                      coordinates={city.coordinates}
+                      onClick={() => city.active && handleCityClick(city.name)}
+                      onMouseEnter={() => city.active && setHoveredCity(city)}
+                      onMouseLeave={() => setHoveredCity(null)}
+                    >
+                      {city.active && (
+                        <circle
+                          r={isSelected ? 14 : isHovered ? 11 : 8}
+                          className={`fill-none ${pulseColor} stroke-2 animate-ping opacity-25 cursor-pointer`}
+                          style={{ animationDuration: cityStats.blocked > 0 ? '1.5s' : '3s' }}
+                        />
+                      )}
+                      <circle
+                        r={city.active ? 4.5 : 2.5}
+                        className={`${dotColor} stroke-[#111015] stroke-[1.5] ${city.active ? 'cursor-pointer hover:r-[6px]' : 'opacity-40'} transition-all`}
+                      />
+                      <text
+                        textAnchor="middle"
+                        y={-10}
+                        className={`font-mono select-none pointer-events-none transition-all ${
+                          city.active 
+                            ? isSelected 
+                              ? 'fill-white text-[10px] font-bold' 
+                              : isHovered 
+                                ? 'fill-gray-200 text-[9px] font-bold' 
+                                : 'fill-gray-400 text-[9px] font-medium'
+                            : 'fill-gray-600 text-[8px] opacity-40'
+                        }`}
+                      >
+                        {city.name}
+                      </text>
+                    </Marker>
+                  );
+                })}
+              </ZoomableGroup>
+            </ComposableMap>
+          </div>
 
-                  {/* City Text Label */}
-                  <text
-                    x={city.x}
-                    y={city.y - 12}
-                    textAnchor="middle"
-                    className={`font-mono text-[10px] font-bold tracking-wide select-none transition ${
-                      isSelected ? 'fill-white text-shadow' : isHovered ? 'fill-gray-200' : 'fill-gray-400'
-                    }`}
-                  >
-                    {city.name}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+          {/* Navigation Controls & Hints Overlay */}
+          <div className="absolute bottom-4 right-4 flex flex-col items-end gap-2 z-20">
+            {/* Zoom Controls */}
+            <div className="flex bg-[#15141c]/95 border border-borderGrey rounded-lg overflow-hidden shadow-2xl">
+              <button 
+                onClick={handleZoomIn}
+                className="p-2 text-gray-400 hover:text-white hover:bg-sentry-violet/20 border-r border-borderGrey/50 transition-colors cursor-pointer"
+                title="Приблизить"
+              >
+                <ZoomIn size={16} />
+              </button>
+              <button 
+                onClick={handleZoomOut}
+                className="p-2 text-gray-400 hover:text-white hover:bg-sentry-violet/20 border-r border-borderGrey/50 transition-colors cursor-pointer"
+                title="Отдалить"
+              >
+                <ZoomOut size={16} />
+              </button>
+              <button 
+                onClick={handleReset}
+                className="p-2 text-gray-400 hover:text-white hover:bg-sentry-violet/20 transition-colors cursor-pointer"
+                title="Сбросить масштаб"
+              >
+                <RotateCcw size={16} />
+              </button>
+            </div>
+            
+            {/* Help Hint */}
+            <div className="flex items-center gap-1.5 bg-[#15141c]/90 border border-borderGrey/60 px-3 py-1.5 rounded-lg text-[10px] text-gray-400 font-mono shadow-lg select-none">
+              <Move size={12} className="text-sentry-violet" />
+              <span>Перетаскивание</span>
+              <span className="text-gray-600">|</span>
+              <ZoomIn size={12} className="text-sentry-violet" />
+              <span>Колесо мыши</span>
+            </div>
+          </div>
 
           {/* Hover Tooltip Overlay */}
           {hoveredCity && (
             <div 
               className="absolute bg-[#15141c]/95 border border-borderGrey p-3 rounded-lg shadow-2xl z-20 font-mono text-xs text-left space-y-2 pointer-events-none select-none max-w-[200px]"
               style={{
-                left: `${getCityCoords(hoveredCity.id).x * 0.95}px`,
-                top: `${getCityCoords(hoveredCity.id).y * 0.85}px`
+                bottom: "20px",
+                left: "20px"
               }}
             >
               <h4 className="font-sans font-bold text-white text-xs border-b border-borderGrey pb-1 uppercase tracking-wide">
@@ -275,7 +343,7 @@ export default function KazakhstanMap() {
               </h4>
               <div className="space-y-1">
                 <div className="flex justify-between gap-4">
-                  <span className="text-gray-400">Всего проверено:</span>
+                  <span className="text-gray-400">Проверено:</span>
                   <span className="text-white font-bold">{getCityStats(hoveredCity.name).total}</span>
                 </div>
                 <div className="flex justify-between gap-4 text-risk-approved">
@@ -305,7 +373,7 @@ export default function KazakhstanMap() {
               <div className="border-b border-borderGrey pb-4">
                 <div className="flex items-center gap-1.5 mb-1 text-gray-500 font-mono text-[10px]">
                   <MapPin size={12} className="text-sentry-violet" />
-                  <span>КАЗАХСТАН / РЕГИОНАЛЬНЫЙ ФИЛИАЛ</span>
+                  <span>РЕГИОНАЛЬНЫЙ ФИЛИАЛ / ADM1</span>
                 </div>
                 <h3 className="text-lg font-bold text-white font-mono uppercase">г. {selectedCity.name}</h3>
               </div>
@@ -381,7 +449,7 @@ export default function KazakhstanMap() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-gray-500 text-center space-y-3 font-mono text-xs">
             <MapPin size={32} className="text-gray-700 animate-bounce" />
-            <span>Выберите регион на карте для получения аналитических сведений</span>
+            <span>Выберите регион или город на карте для получения аналитических сведений</span>
           </div>
         )}
       </div>

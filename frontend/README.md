@@ -1,16 +1,85 @@
-# React + Vite
+# ⚛️ AntiFraud Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Клиентское веб-приложение системы мониторинга антифрода на базе **React 19**, **Vite** и **Tailwind CSS v4**.
 
-Currently, two official plugins are available:
+Приложение предназначено для интерактивной визуализации аномалий, анализа геопространственных данных Казахстана, мониторинга потока транзакций и печати юридических протоколов проверок.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 📁 Структура папки фронтенда
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+frontend/
+├── public/
+│   └── kazakhstan.json       # Топологические геоданные регионов Казахстана (GeoJSON ADM1)
+├── src/
+│   ├── assets/               # Статические ресурсы и иконки
+│   ├── components/
+│   │   ├── Dashboard.jsx     # Панель сводной аналитики (KPI, Recharts графики)
+│   │   ├── FraudCases.jsx    # Реестр нарушений и генерация печатных протоколов ДЭР РК
+│   │   ├── KazakhstanMap.jsx # Интерактивная SVG-карта РК с масштабированием и геозонами
+│   │   └── LiveMonitor.jsx   # Мониторинг входящих транзакций в реальном времени
+│   ├── context/
+│   │   └── AppContext.jsx    # Глобальное состояние приложения и взаимодействие с REST API
+│   ├── App.css
+│   ├── App.jsx               # Базовый макет приложения с навигацией
+│   ├── index.css             # Глобальные стили, темы и переменные Tailwind CSS v4
+│   └── main.jsx              # Точка входа React 19
+├── .gitignore
+├── .oxlintrc.json
+├── Dockerfile                # Сборка Docker-образа для Node.js 20-slim
+├── index.html
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+├── vite.config.js
+└── README.md                 # Документация фронтенда
+```
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 🛠️ Технологический стек
+
+* **Фреймворк UI:** React 19 + Vite 6
+* **Стилизация:** Tailwind CSS v4 (`@tailwindcss/postcss`) + Vanilla CSS
+* **Картография:** `react-simple-maps` (SVG-рендеринг ADM1 географии)
+* **Графики и визуализация:** `recharts`
+* **Иконки:** `lucide-react`
+* **Состояние:** React Context API (`AppContext.jsx`)
+
+---
+
+## 🗺️ Особенности компонента карты (`KazakhstanMap.jsx`)
+
+1. **Гео-данные:** Использует карту областей Казахстана (`public/kazakhstan.json`).
+2. **Исправление геометрии D3:** Автоматическая нормализация ориентации границ регионов (Winding order correction) для корректного отображения без инверсии полигонов.
+3. **Навигация:** Встроены элементы управления приближением (Zoom In/Out), сброса масштаба и панорамирования (Pan).
+4. **Тепловая картограмма:** Автоматический расчет уровня риска региона на основе активных блокировок и подозрений.
+5. **Детальная панель:** При клике на регион/город отображаются спасенные средства (KZT), список клиник и автоматические предписания ДЭР РК.
+
+---
+
+## 🖨️ Генерация протоколов (`FraudCases.jsx`)
+
+Вкладка «Инциденты» поддерживает формирование юридически значимого **Протокола выездной проверки** с возможностью печати напрямую из браузера (`window.print()`) со специальными стилями оформления под официальные документы ДЭР МФ РК.
+
+---
+
+## 🔧 Запуск и сборка
+
+### Установка зависимостей:
+```bash
+npm install --legacy-peer-deps
+```
+
+### Запуск в режиме разработки:
+```bash
+npm run dev
+```
+Приложение откроется по адресу: `http://localhost:5173`
+
+### Сборка production-комплекта:
+```bash
+npm run build
+```
+Итоговые файлы будут сохранены в директории `dist/`.

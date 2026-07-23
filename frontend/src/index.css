@@ -22,7 +22,14 @@
 
 @layer base {
   body {
-    @apply bg-bgDark font-sans selection:bg-sentry-lime selection:text-sentry-primary;
+    background-color: var(--color-bgDark);
+    font-family: var(--font-sans);
+    color: #ffffff;
+  }
+
+  ::selection {
+    background-color: var(--color-sentry-lime);
+    color: var(--color-sentry-primary);
   }
 }
 
