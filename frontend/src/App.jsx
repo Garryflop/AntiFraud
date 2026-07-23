@@ -42,7 +42,7 @@ export default function App() {
           </div>
           <div>
             <span className="font-bold text-white text-sm tracking-wide block uppercase">АНТИФРОД МОНИТОРИНГ</span>
-            <span className="text-[10px] text-gray-400 font-mono tracking-wider uppercase block">ИИС Департамента экономических расследований</span>
+            <span className="text-[10px] text-gray-400 font-mono tracking-wider uppercase block">ДЭР по области Абай АФМ РК</span>
           </div>
         </div>
 
@@ -127,22 +127,15 @@ export default function App() {
         {renderActiveTab()}
       </main>
 
-      {/* Lime Squiggly Footer Divider from DESIGN.md */}
-      <div className="w-full shrink-0 select-none bg-bgDark border-t border-borderGrey pt-2 px-6">
-        <svg className="w-full h-3" viewBox="0 0 1200 12" preserveAspectRatio="none">
-          <path 
-            d="M0,6 Q75,12 150,6 T300,6 T450,6 T600,6 T750,6 T900,6 T1050,6 T1200,6" 
-            fill="none" 
-            stroke="#c2ef4e" 
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-        </svg>
-        <footer className="py-2 flex justify-between items-center text-[10px] text-gray-500 font-mono">
-          <span>&copy; {new Date().getFullYear()} Комитет по финансовому мониторингу МФ РК (ДЭР)</span>
-          <span>Система обнаружения приписок и логических аномалий ФСМС</span>
-        </footer>
-      </div>
+      {/* Footer Area */}
+      <footer className="w-full shrink-0 select-none bg-[#150f23] border-t border-borderGrey py-2.5 px-6 flex justify-between items-center text-[11px] text-gray-400 font-mono">
+        <span className="font-medium text-gray-300">
+          Департамент экономических расследований по области Абай Агентства Республики Казахстан по финансовому мониторингу
+        </span>
+        <span className="text-gray-500">
+          ИИС «Антифрод Мониторинг ФСМС» &copy; {new Date().getFullYear()}
+        </span>
+      </footer>
     </div>
   );
 }
