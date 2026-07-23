@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const AppContext = createContext();
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const AppProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'monitor', 'cases'
