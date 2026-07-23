@@ -53,3 +53,13 @@ desktop.ini
 *.jpg
 *.jpeg
 *.log
+
+# Sensitive design docs & scripts
+DESIGN.md
+docker-start.bat
+docker-start.sh
+docker-stop.bat
+docker-stop.sh
+*.bat
+*.sh
+
