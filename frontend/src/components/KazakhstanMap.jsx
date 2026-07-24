@@ -35,6 +35,45 @@ const CLINICS_BY_CITY = {
   ],
   "Караганда": [
     { id: "CL-08", name: "Областная клиническая больница" }
+  ],
+  "Атырау": [
+    { id: "CL-09", name: "Атырауская областная больница" }
+  ],
+  "Актау": [
+    { id: "CL-10", name: "Медицинский центр 'Маңғыстау'" }
+  ],
+  "Актобе": [
+    { id: "CL-11", name: "Актюбинская многопрофильная больница" }
+  ],
+  "Уральск": [
+    { id: "CL-12", name: "Западно-Казахстанский кардиоцентр" }
+  ],
+  "Костанай": [
+    { id: "CL-13", name: "Костанайская городская больница" }
+  ],
+  "Павлодар": [
+    { id: "CL-14", name: "Павлодарский диагностический центр" }
+  ],
+  "Усть-Каменогорск": [
+    { id: "CL-15", name: "Восточно-Казахстанский областной центр" }
+  ],
+  "Петропавловск": [
+    { id: "CL-16", name: "Северо-Казахстанская поликлиника №1" }
+  ],
+  "Кокшетау": [
+    { id: "CL-17", name: "Акмолинская многопрофильная клиника" }
+  ],
+  "Тараз": [
+    { id: "CL-18", name: "Жамбылская областная больница" }
+  ],
+  "Кызылорда": [
+    { id: "CL-19", name: "Кызылординский медицинский центр" }
+  ],
+  "Туркестан": [
+    { id: "CL-20", name: "Туркестанская областная поликлиника" }
+  ],
+  "Талдыкорган": [
+    { id: "CL-21", name: "Жетысуская многопрофильная больница" }
   ]
 };
 
@@ -45,22 +84,19 @@ const CITIES = [
   { id: "shymkent", name: "Шымкент", coordinates: [69.5901, 42.3417], active: true },
   { id: "karaganda", name: "Караганда", coordinates: [73.0878, 49.8047], active: true },
   { id: "semey", name: "Семей", coordinates: [80.2458, 50.4111], active: true },
-
-  // Inactive background cities (for visual context)
-  { id: "atyrau", name: "Атырау", coordinates: [51.9168, 47.0945], active: false },
-  { id: "aktau", name: "Актау", coordinates: [51.1975, 43.6480], active: false },
-  { id: "aktobe", name: "Актобе", coordinates: [57.2072, 50.2839], active: false },
-  { id: "uralsk", name: "Уральск", coordinates: [51.3720, 51.2333], active: false },
-  { id: "kostanay", name: "Костанай", coordinates: [63.6354, 53.2198], active: false },
-  { id: "pavlodar", name: "Павлодар", coordinates: [76.9556, 52.2873], active: false },
-  { id: "oskemen", name: "Усть-Каменогорск", coordinates: [82.6149, 49.9543], active: false },
-  { id: "petropavl", name: "Петропавловск", coordinates: [69.1318, 54.8753], active: false },
-  { id: "kokshetau", name: "Кокшетау", coordinates: [69.3861, 53.2833], active: false },
-  { id: "taraz", name: "Тараз", coordinates: [71.3983, 42.9008], active: false },
-  { id: "kyzylorda", name: "Кызылорда", coordinates: [65.5110, 44.8398], active: false },
-  { id: "turkestan", name: "Туркестан", coordinates: [68.2711, 43.3031], active: false },
-  { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: false },
-  { id: "zhezkazgan", name: "Жезказган", coordinates: [67.7144, 47.7833], active: false }
+  { id: "atyrau", name: "Атырау", coordinates: [51.9168, 47.0945], active: true },
+  { id: "aktau", name: "Актау", coordinates: [51.1975, 43.6480], active: true },
+  { id: "aktobe", name: "Актобе", coordinates: [57.2072, 50.2839], active: true },
+  { id: "uralsk", name: "Уральск", coordinates: [51.3720, 51.2333], active: true },
+  { id: "kostanay", name: "Костанай", coordinates: [63.6354, 53.2198], active: true },
+  { id: "pavlodar", name: "Павлодар", coordinates: [76.9556, 52.2873], active: true },
+  { id: "oskemen", name: "Усть-Каменогорск", coordinates: [82.6149, 49.9543], active: true },
+  { id: "petropavl", name: "Петропавловск", coordinates: [69.1318, 54.8753], active: true },
+  { id: "kokshetau", name: "Кокшетау", coordinates: [69.3861, 53.2833], active: true },
+  { id: "taraz", name: "Тараз", coordinates: [71.3983, 42.9008], active: true },
+  { id: "kyzylorda", name: "Кызылорда", coordinates: [65.5110, 44.8398], active: true },
+  { id: "turkestan", name: "Туркестан", coordinates: [68.2711, 43.3031], active: true },
+  { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: true }
 ];
 
 export default function KazakhstanMap() {
@@ -75,13 +111,24 @@ export default function KazakhstanMap() {
   const mapGeoToCityName = (geo) => {
     if (!geo || !geo.properties) return null;
     const iso = geo.properties.shapeISO;
-    const name = geo.properties.shapeName;
+    const name = (geo.properties.shapeName || "").toLowerCase();
     
-    if (iso === "KZ-AST" || (name && name.toLowerCase() === "astana")) return "Астана";
-    if (iso === "KZ-ALA" || (name && name.toLowerCase() === "almaty")) return "Алматы";
-    if (iso === "KZ-KAR" || (name && name.toLowerCase().includes("karaganda"))) return "Караганда";
-    if (iso === "KZ-VOS" || (name && name.toLowerCase().includes("east kazakhstan"))) return "Семей";
-    if (iso === "KZ-YUZ" || (name && name.toLowerCase().includes("south kazakhstan"))) return "Шымкент";
+    if (iso === "KZ-AST" || name.includes("astana")) return "Астана";
+    if (iso === "KZ-ALA" || name === "almaty") return "Алматы";
+    if (iso === "KZ-KAR" || name.includes("karaganda")) return "Караганда";
+    if (iso === "KZ-VOS" || name.includes("east kazakhstan")) return "Семей";
+    if (iso === "KZ-YUZ" || name.includes("south kazakhstan")) return "Шымкент";
+    if (iso === "KZ-ATY" || name.includes("atyrau")) return "Атырау";
+    if (iso === "KZ-MAN" || name.includes("mangystau")) return "Актау";
+    if (iso === "KZ-AKT" || name.includes("aktobe")) return "Актобе";
+    if (iso === "KZ-ZAP" || name.includes("west kazakhstan")) return "Уральск";
+    if (iso === "KZ-KUS" || name.includes("kostanay")) return "Костанай";
+    if (iso === "KZ-PAV" || name.includes("pavlodar")) return "Павлодар";
+    if (iso === "KZ-SEV" || name.includes("north kazakhstan")) return "Петропавловск";
+    if (iso === "KZ-AKM" || name.includes("akmola")) return "Кокшетау";
+    if (iso === "KZ-ZHA" || name.includes("jambyl")) return "Тараз";
+    if (iso === "KZ-KZY" || name.includes("kyzylorda")) return "Кызылорда";
+    if (iso === "KZ-ALM" || name.includes("almaty region")) return "Талдыкорган";
     return null;
   };
 
@@ -96,10 +143,10 @@ export default function KazakhstanMap() {
       .reduce((sum, c) => sum + (c.service?.cost || 0), 0);
 
     return {
-      total: metrics?.total || 0,
-      approved: metrics?.approved || 0,
-      suspicion: metrics?.suspicion || 0,
-      blocked: metrics?.blocked || 0,
+      total: metrics?.total || (cityCases.length > 0 ? cityCases.length : 0),
+      approved: metrics?.approved || cityCases.filter(c => c.status === 'APPROVED').length,
+      suspicion: metrics?.suspicion || cityCases.filter(c => c.status === 'SUSPICION').length,
+      blocked: metrics?.blocked || cityCases.filter(c => c.status === 'BLOCKED').length,
       preventedLosses
     };
   };

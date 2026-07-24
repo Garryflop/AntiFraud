@@ -80,6 +80,12 @@ class LogGenerator:
             "travel_overlap"
         ]
 
+        # Define risk tier clinics for realistic map heatmap rendering
+        red_clinics = [c for c in clinics_list if c.region in ["Семей", "Астана", "Шымкент", "Алматы", "Актау"]]
+        yellow_clinics = [c for c in clinics_list if c.region in ["Атырау", "Караганда", "Актобе", "Тараз"]]
+        if not red_clinics: red_clinics = clinics_list
+        if not yellow_clinics: yellow_clinics = clinics_list
+
         for _ in range(fraud_count):
             ftype = random.choice(fraud_types)
             tx_time = base_time - timedelta(
@@ -93,7 +99,7 @@ class LogGenerator:
                 if random.choice([True, False]):
                     male_patient = random.choice([p for p in db.patients.values() if p.gender == "M"])
                     gyn_service = random.choice([s for s in db.services.values() if s.category == "Гинекология"])
-                    clinic = random.choice(clinics_list)
+                    clinic = random.choice(red_clinics)
                     doctor = random.choice(active_doctors)
                     payload = TransactionPayload(
                         patient_iin=male_patient.iin,
@@ -105,7 +111,7 @@ class LogGenerator:
                 else:
                     female_patient = random.choice([p for p in db.patients.values() if p.gender == "F"])
                     uro_service = random.choice([s for s in db.services.values() if s.category == "Урология-Андрология"])
-                    clinic = random.choice(clinics_list)
+                    clinic = random.choice(red_clinics)
                     doctor = random.choice(active_doctors)
                     payload = TransactionPayload(
                         patient_iin=female_patient.iin,
@@ -120,7 +126,7 @@ class LogGenerator:
                 # Deceased patient
                 deceased_patient = random.choice([p for p in db.patients.values() if p.status == "DECEASED"])
                 doctor = random.choice(active_doctors)
-                clinic = random.choice(clinics_list)
+                clinic = random.choice(red_clinics)
                 service = random.choice(services_list)
                 payload = TransactionPayload(
                     patient_iin=deceased_patient.iin,
@@ -135,7 +141,7 @@ class LogGenerator:
                 # Doctor on leave
                 ghost_doctor = random.choice([d for d in db.doctors.values() if d.is_on_leave])
                 patient = random.choice(non_abroad_patients)
-                clinic = random.choice(clinics_list)
+                clinic = random.choice(red_clinics)
                 service = random.choice(services_list)
                 payload = TransactionPayload(
                     patient_iin=patient.iin,
@@ -150,7 +156,7 @@ class LogGenerator:
                 # Create a doctor with multiple services exceeding 14 hours (840 minutes)
                 doctor = random.choice(active_doctors)
                 patient = random.choice(non_abroad_patients)
-                clinic = random.choice(clinics_list)
+                clinic = random.choice(red_clinics)
                 mrt_service = db.services["SRV-401"] # 60 minutes
                 
                 # We need 15 services of 60 minutes on the same day to hit 900 minutes
@@ -199,10 +205,10 @@ class LogGenerator:
                 results.append(FraudDetector.check_transaction(payload2))
 
             elif ftype == "splitting":
-                # 5 transactions in 2 hours
+                # 5 transactions in 2 hours -> SUSPICION (Yellow)
                 patient = random.choice(non_abroad_patients)
                 doctor = random.choice(active_doctors)
-                clinic = random.choice(clinics_list)
+                clinic = random.choice(yellow_clinics)
                 short_service = db.services["SRV-502"] # 10 mins
                 
                 for i in range(5):
@@ -218,16 +224,14 @@ class LogGenerator:
 
             elif ftype == "travel_overlap":
                 # Patient is travel-overlap
-                # Fetch a patient with travel records
                 travel_record = random.choice(db.travel_records)
                 patient_iin = travel_record.patient_iin
                 
-                # Generate a timestamp that overlaps with the travel dates
                 overlap_date = travel_record.departure_date + timedelta(days=2)
                 overlap_time = datetime.combine(overlap_date, datetime.min.time()) + timedelta(hours=14)
                 
                 doctor = random.choice(active_doctors)
-                clinic = random.choice(clinics_list)
+                clinic = random.choice(red_clinics)
                 service = random.choice(services_list)
                 
                 payload = TransactionPayload(
