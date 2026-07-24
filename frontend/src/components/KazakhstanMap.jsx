@@ -74,6 +74,9 @@ const CLINICS_BY_CITY = {
   ],
   "Талдыкорган": [
     { id: "CL-21", name: "Жетысуская многопрофильная больница" }
+  ],
+  "Жезказган": [
+    { id: "CL-22", name: "Многопрофильная больница г. Жезказган" }
   ]
 };
 
@@ -96,7 +99,8 @@ const CITIES = [
   { id: "taraz", name: "Тараз", coordinates: [71.3983, 42.9008], active: true },
   { id: "kyzylorda", name: "Кызылорда", coordinates: [65.5110, 44.8398], active: true },
   { id: "turkestan", name: "Туркестан", coordinates: [68.2711, 43.3031], active: true },
-  { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: true }
+  { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: true },
+  { id: "zhezkazgan", name: "Жезказган", coordinates: [67.7144, 47.7833], active: true }
 ];
 
 export default function KazakhstanMap() {
