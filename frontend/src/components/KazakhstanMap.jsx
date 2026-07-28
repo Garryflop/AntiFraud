@@ -77,6 +77,9 @@ const CLINICS_BY_CITY = {
   ],
   "Жезказган": [
     { id: "CL-22", name: "Многопрофильная больница г. Жезказган" }
+  ],
+  "Конаев": [
+    { id: "CL-23", name: "Алматинская многопрофильная больница (г. Конаев)" }
   ]
 };
 
@@ -100,7 +103,8 @@ const CITIES = [
   { id: "kyzylorda", name: "Кызылорда", coordinates: [65.5110, 44.8398], active: true },
   { id: "turkestan", name: "Туркестан", coordinates: [68.2711, 43.3031], active: true },
   { id: "taldykorgan", name: "Талдыкорган", coordinates: [78.3739, 45.0159], active: true },
-  { id: "zhezkazgan", name: "Жезказган", coordinates: [67.7144, 47.7833], active: true }
+  { id: "zhezkazgan", name: "Жезказган", coordinates: [67.7144, 47.7833], active: true },
+  { id: "konaev", name: "Конаев", coordinates: [77.0653, 43.8767], active: true }
 ];
 
 export default function KazakhstanMap() {
@@ -114,25 +118,30 @@ export default function KazakhstanMap() {
   // Maps GeoJSON region to DB city name
   const mapGeoToCityName = (geo) => {
     if (!geo || !geo.properties) return null;
-    const iso = geo.properties.shapeISO || geo.properties["hc-key"] || "";
+    const iso = (geo.properties.shapeISO || geo.properties["hc-key"] || "").toLowerCase();
     const name = (geo.properties.shapeName || geo.properties.name || "").toLowerCase();
+    const nameRu = (geo.properties["name:ru"] || "").toLowerCase();
 
-    if (iso === "KZ-AST" || name.includes("astana")) return "Астана";
-    if (iso === "KZ-ALA" || name === "almaty" || name.includes("almaty qalasy")) return "Алматы";
-    if (iso === "KZ-KAR" || name.includes("karaganda") || name.includes("qarağandy")) return "Караганда";
-    if (iso === "KZ-VOS" || name.includes("east kazakhstan") || name.includes("abai")) return "Семей";
-    if (iso === "KZ-YUZ" || name.includes("south kazakhstan") || name.includes("shymkent")) return "Шымкент";
-    if (iso === "KZ-ATY" || name.includes("atyrau")) return "Атырау";
-    if (iso === "KZ-MAN" || name.includes("mangystau")) return "Актау";
-    if (iso === "KZ-AKT" || name.includes("aktobe")) return "Актобе";
-    if (iso === "KZ-ZAP" || name.includes("west kazakhstan")) return "Уральск";
-    if (iso === "KZ-KUS" || name.includes("kostanay")) return "Костанай";
-    if (iso === "KZ-PAV" || name.includes("pavlodar")) return "Павлодар";
-    if (iso === "KZ-SEV" || name.includes("north kazakhstan")) return "Петропавловск";
-    if (iso === "KZ-AKM" || name.includes("akmola")) return "Кокшетау";
-    if (iso === "KZ-ZHA" || name.includes("jambyl")) return "Тараз";
-    if (iso === "KZ-KZY" || name.includes("kyzylorda")) return "Кызылорда";
-    if (iso === "KZ-ALM" || name.includes("almaty region") || name.includes("jetısu")) return "Талдыкорган";
+    if (iso === "kz-71" || iso === "kz-ast" || name.includes("astana")) return "Астана";
+    if (iso === "kz-75" || iso === "kz-ala" || name === "almaty") return "Алматы";
+    if (iso === "kz-79" || iso === "kz-shy" || name.includes("shymkent")) return "Шымкент";
+    if (iso === "kz-10" || iso === "kz-aba" || name.includes("abai")) return "Семей";
+    if (iso === "kz-63" || iso === "kz-vos" || name.includes("east kazakhstan") || nameRu.includes("вко")) return "Усть-Каменогорск";
+    if (iso === "kz-33" || iso === "kz-jet" || name.includes("jetısu") || name.includes("zhetysu")) return "Талдыкорган";
+    if (iso === "kz-19" || iso === "kz-alm" || name.includes("almaty region")) return "Конаев";
+    if (iso === "kz-62" || iso === "kz-uly" || name.includes("ulıtaw") || name.includes("ulytau")) return "Жезказган";
+    if (iso === "kz-35" || iso === "kz-kar" || name.includes("karaganda") || name.includes("qarağandy")) return "Караганда";
+    if (iso === "kz-23" || iso === "kz-aty" || name.includes("atyrau")) return "Атырау";
+    if (iso === "kz-47" || iso === "kz-man" || name.includes("mangystau")) return "Актау";
+    if (iso === "kz-15" || iso === "kz-akt" || name.includes("aktobe")) return "Актобе";
+    if (iso === "kz-27" || iso === "kz-zap" || name.includes("west kazakhstan") || name.includes("batys")) return "Уральск";
+    if (iso === "kz-39" || iso === "kz-kus" || name.includes("kostanay") || name.includes("qostanai")) return "Костанай";
+    if (iso === "kz-55" || iso === "kz-pav" || name.includes("pavlodar")) return "Павлодар";
+    if (iso === "kz-59" || iso === "kz-sev" || name.includes("north kazakhstan") || name.includes("soltüstık")) return "Петропавловск";
+    if (iso === "kz-11" || iso === "kz-akm" || name.includes("akmola")) return "Кокшетау";
+    if (iso === "kz-31" || iso === "kz-zha" || name.includes("jambyl") || name.includes("zhambyl")) return "Тараз";
+    if (iso === "kz-43" || iso === "kz-kzy" || name.includes("kyzylorda") || name.includes("qyzylorda")) return "Кызылорда";
+    if (iso === "kz-61" || iso === "kz-yuz" || name.includes("turkestan") || name.includes("south kazakhstan")) return "Туркестан";
     return null;
   };
 

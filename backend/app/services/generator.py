@@ -80,9 +80,9 @@ class LogGenerator:
             "travel_overlap"
         ]
 
-        # Define risk tier clinics for realistic map heatmap rendering
-        red_clinics = [c for c in clinics_list if c.region in ["Семей", "Астана", "Шымкент", "Алматы", "Актау"]]
-        yellow_clinics = [c for c in clinics_list if c.region in ["Атырау", "Караганда", "Актобе", "Тараз"]]
+        # Define risk tier clinics for realistic map heatmap rendering across regions
+        red_clinics = [c for c in clinics_list if c.region in ["Семей", "Астана", "Шымкент", "Алматы", "Актау", "Жезказган", "Усть-Каменогорск"]]
+        yellow_clinics = [c for c in clinics_list if c.region in ["Атырау", "Караганда", "Актобе", "Тараз", "Талдыкорган", "Конаев"]]
         if not red_clinics: red_clinics = clinics_list
         if not yellow_clinics: yellow_clinics = clinics_list
 
