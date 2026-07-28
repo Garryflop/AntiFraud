@@ -114,30 +114,25 @@ export default function KazakhstanMap() {
   // Maps GeoJSON region to DB city name
   const mapGeoToCityName = (geo) => {
     if (!geo || !geo.properties) return null;
-    const key = (geo.properties["hc-key"] || geo.properties.shapeISO || "").toLowerCase();
-    const name = (geo.properties.name || geo.properties.shapeName || "").toLowerCase();
+    const iso = geo.properties.shapeISO || geo.properties["hc-key"] || "";
+    const name = (geo.properties.shapeName || geo.properties.name || "").toLowerCase();
 
-    if (key === "kz-10" || name.includes("abai")) return "Семей";
-    if (key === "kz-63" || name.includes("east kazakhstan") || name.includes("şığıs")) return "Усть-Каменогорск";
-    if (key === "kz-33" || name.includes("jetısu") || name.includes("zhetysu")) return "Талдыкорган";
-    if (key === "kz-62" || name.includes("ulıtaw") || name.includes("ulytau")) return "Жезказган";
-    if (key === "kz-71" || key === "kz-ast" || name.includes("astana")) return "Астана";
-    if (key === "kz-75" || key === "kz-ala" || name.includes("almaty qalasy")) return "Алматы";
-    if (key === "kz-19" || name.includes("almaty")) return "Талдыкорган";
-    if (key === "kz-79" || key === "kz-yuz" || name.includes("şymkent") || name.includes("shymkent")) return "Шымкент";
-    if (key === "kz-35" || key === "kz-kar" || name.includes("qarağandy") || name.includes("karaganda")) return "Караганда";
-    if (key === "kz-23" || key === "kz-aty" || name.includes("atyrau")) return "Атырау";
-    if (key === "kz-47" || key === "kz-man" || name.includes("mañğystau") || name.includes("mangystau")) return "Актау";
-    if (key === "kz-15" || key === "kz-akt" || name.includes("aqtöbe") || name.includes("aktobe")) return "Актобе";
-    if (key === "kz-27" || key === "kz-zap" || name.includes("batys") || name.includes("west")) return "Уральск";
-    if (key === "kz-39" || key === "kz-kus" || name.includes("qostanai") || name.includes("kostanay")) return "Костанай";
-    if (key === "kz-55" || key === "kz-pav" || name.includes("pavlodar")) return "Павлодар";
-    if (key === "kz-59" || key === "kz-sev" || name.includes("soltüstık") || name.includes("north")) return "Петропавловск";
-    if (key === "kz-11" || key === "kz-akm" || name.includes("aqmola") || name.includes("akmola")) return "Кокшетау";
-    if (key === "kz-31" || key === "kz-zha" || name.includes("jambyl")) return "Тараз";
-    if (key === "kz-43" || key === "kz-kzy" || name.includes("qyzylorda") || name.includes("kyzylorda")) return "Кызылорда";
-    if (key === "kz-61" || name.includes("türkıstan") || name.includes("turkestan")) return "Туркестан";
-
+    if (iso === "KZ-AST" || name.includes("astana")) return "Астана";
+    if (iso === "KZ-ALA" || name === "almaty" || name.includes("almaty qalasy")) return "Алматы";
+    if (iso === "KZ-KAR" || name.includes("karaganda") || name.includes("qarağandy")) return "Караганда";
+    if (iso === "KZ-VOS" || name.includes("east kazakhstan") || name.includes("abai")) return "Семей";
+    if (iso === "KZ-YUZ" || name.includes("south kazakhstan") || name.includes("shymkent")) return "Шымкент";
+    if (iso === "KZ-ATY" || name.includes("atyrau")) return "Атырау";
+    if (iso === "KZ-MAN" || name.includes("mangystau")) return "Актау";
+    if (iso === "KZ-AKT" || name.includes("aktobe")) return "Актобе";
+    if (iso === "KZ-ZAP" || name.includes("west kazakhstan")) return "Уральск";
+    if (iso === "KZ-KUS" || name.includes("kostanay")) return "Костанай";
+    if (iso === "KZ-PAV" || name.includes("pavlodar")) return "Павлодар";
+    if (iso === "KZ-SEV" || name.includes("north kazakhstan")) return "Петропавловск";
+    if (iso === "KZ-AKM" || name.includes("akmola")) return "Кокшетау";
+    if (iso === "KZ-ZHA" || name.includes("jambyl")) return "Тараз";
+    if (iso === "KZ-KZY" || name.includes("kyzylorda")) return "Кызылорда";
+    if (iso === "KZ-ALM" || name.includes("almaty region") || name.includes("jetısu")) return "Талдыкорган";
     return null;
   };
 
@@ -231,24 +226,27 @@ export default function KazakhstanMap() {
                       const isRegionActive = !!mappedCity;
                       const cityStats = getCityStats(mappedCity);
                       
-                      // Heatmap colors based on database status
-                      let fill = "#15141c";
-                      let stroke = "rgba(90, 59, 184, 0.35)";
+                      // Visible base colors for all Kazakhstan regions
+                      let fill = "#221e36";
+                      let stroke = "#4c3882";
                       
                       if (isRegionActive) {
                         if (cityStats.blocked > 0) {
-                          fill = "rgba(239, 68, 68, 0.15)";
-                          stroke = "rgba(239, 68, 68, 0.6)";
+                          fill = "rgba(239, 68, 68, 0.28)";
+                          stroke = "rgba(239, 68, 68, 0.85)";
                         } else if (cityStats.suspicion > 0) {
-                          fill = "rgba(234, 179, 8, 0.12)";
-                          stroke = "rgba(234, 179, 8, 0.5)";
+                          fill = "rgba(234, 179, 8, 0.22)";
+                          stroke = "rgba(234, 179, 8, 0.75)";
+                        } else if (cityStats.approved > 0) {
+                          fill = "rgba(34, 197, 94, 0.18)";
+                          stroke = "rgba(34, 197, 94, 0.6)";
                         } else {
-                          fill = "rgba(34, 197, 94, 0.08)";
-                          stroke = "rgba(34, 197, 94, 0.4)";
+                          fill = "#25213b";
+                          stroke = "#5d42a8";
                         }
                       }
 
-                      // Hover logic
+                      // Hover & selection logic
                       const isSelected = selectedCity && mappedCity && selectedCity.name === mappedCity;
 
                       return (
@@ -260,23 +258,23 @@ export default function KazakhstanMap() {
                           onMouseLeave={() => setHoveredCity(null)}
                           style={{
                             default: {
-                              fill: isSelected ? "rgba(90, 59, 184, 0.25)" : fill,
-                              stroke: isSelected ? "#9065ff" : stroke,
-                              strokeWidth: isSelected ? 1.5 : 1.0,
+                              fill: isSelected ? "rgba(144, 101, 255, 0.35)" : fill,
+                              stroke: isSelected ? "#a78bfa" : stroke,
+                              strokeWidth: isSelected ? 2.0 : 1.2,
                               outline: "none",
                               transition: "all 250ms ease"
                             },
                             hover: {
-                              fill: "rgba(90, 59, 184, 0.15)",
-                              stroke: "#9065ff",
-                              strokeWidth: 1.5,
+                              fill: "rgba(144, 101, 255, 0.3)",
+                              stroke: "#c4b5fd",
+                              strokeWidth: 2.0,
                               outline: "none",
-                              cursor: mappedCity ? "pointer" : "default"
+                              cursor: "pointer"
                             },
                             pressed: {
-                              fill: "rgba(90, 59, 184, 0.35)",
-                              stroke: "#9065ff",
-                              strokeWidth: 1.5,
+                              fill: "rgba(144, 101, 255, 0.45)",
+                              stroke: "#a78bfa",
+                              strokeWidth: 2.0,
                               outline: "none"
                             }
                           }}
