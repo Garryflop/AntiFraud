@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { useApp } from '../context/AppContext';
+import DateRangeFilter from './DateRangeFilter';
 import { 
   MapPin, 
   Building2, 
@@ -198,13 +199,18 @@ export default function KazakhstanMap() {
     <div className="flex h-full bg-bgDark">
       {/* Map visualization pane */}
       <div className="flex-1 flex flex-col p-6 min-w-0">
-        <div className="mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            География инцидентов и аномалий
-            <span className="text-xs bg-sentry-violetDeep/50 text-white border border-sentry-violet/40 font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider">GEO-BOUNDARIES</span>
-          </h2>
-          <p className="text-sm text-gray-400">Топологическое картирование нарушений с использованием картографических данных ADM1</p>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              География инцидентов и аномалий
+              <span className="text-xs bg-[#422082] text-[#c2ef4e] border border-[#6a5fc1]/40 font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider">GEO-BOUNDARIES</span>
+            </h2>
+            <p className="text-xs text-gray-400">Топологическое картирование нарушений с фильтрацией по временным диапазонам</p>
+          </div>
         </div>
+
+        {/* Date Filter Bar */}
+        <DateRangeFilter />
 
         {/* Map Container */}
         <div className="flex-1 bg-[#100f13]/85 border border-borderGrey rounded-2xl relative p-4 flex items-center justify-center overflow-hidden">

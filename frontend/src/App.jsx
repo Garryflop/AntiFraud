@@ -22,8 +22,11 @@ import {
   FileText
 } from 'lucide-react';
 
+import MLAnalyticsModal from './components/MLAnalyticsModal';
+
 export default function App() {
   const { activeTab, setActiveTab, stats } = useApp();
+  const [isMLOpen, setIsMLOpen] = React.useState(false);
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -42,6 +45,9 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-bgDark overflow-hidden">
+      {/* Modals */}
+      <MLAnalyticsModal isOpen={isMLOpen} onClose={() => setIsMLOpen(false)} />
+
       {/* Sentry-Style Top Navigation Bar */}
       <header className="bg-[#150f23] border-b border-borderGrey px-6 py-4 flex items-center justify-between z-20 shrink-0">
         <div className="flex items-center gap-3">
@@ -55,7 +61,7 @@ export default function App() {
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex bg-black/35 rounded-lg border border-borderGrey p-0.5">
+        <nav className="flex bg-black/35 rounded-lg border border-borderGrey p-0.5 gap-1">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono uppercase tracking-wider transition rounded-md ${
@@ -107,6 +113,16 @@ export default function App() {
                 {stats.kpis.blocked_count + stats.kpis.suspicion_count}
               </span>
             )}
+          </button>
+
+          <div className="h-6 w-px bg-[#362d59] my-auto mx-1" />
+
+          <button
+            onClick={() => setIsMLOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-mono uppercase tracking-wider text-purple-300 hover:text-white bg-[#1f1633] hover:bg-[#422082] border border-[#362d59] hover:border-[#6a5fc1] rounded-md transition shadow-md"
+          >
+            <Cpu size={14} className="text-[#c2ef4e]" />
+            AI / ML Модель
           </button>
         </nav>
 

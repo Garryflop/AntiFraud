@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import transactions, dashboard, simulation
+from app.routers import transactions, dashboard, simulation, ml, disputes
 from app.services.generator import LogGenerator
 from app.database.db import db
 
@@ -24,6 +24,8 @@ app.add_middleware(
 app.include_router(transactions.router)
 app.include_router(dashboard.router)
 app.include_router(simulation.router)
+app.include_router(ml.router)
+app.include_router(disputes.router)
 
 @app.on_event("startup")
 def startup_event():

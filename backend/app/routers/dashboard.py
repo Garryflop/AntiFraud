@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 from app.models.schemas import TransactionResult
@@ -208,10 +208,30 @@ def build_breadcrumbs(tx: TransactionResult) -> List[Dict[str, Any]]:
     return breadcrumbs
 
 @router.get("/stats")
-def get_stats():
-    total_txs = len(db.transactions)
-    blocked_txs = [tx for tx in db.transactions if tx.status == "BLOCKED"]
-    suspicion_txs = [tx for tx in db.transactions if tx.status == "SUSPICION"]
+def get_stats(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    transactions = db.transactions
+    
+    # Filter by date if provided (Format: YYYY-MM-DD)
+    if start_date:
+        try:
+            s_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            transactions = [tx for tx in transactions if tx.payload.timestamp >= s_dt]
+        except Exception:
+            pass
+            
+    if end_date:
+        try:
+            e_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
+            transactions = [tx for tx in transactions if tx.payload.timestamp < e_dt]
+        except Exception:
+            pass
+
+    total_txs = len(transactions)
+    blocked_txs = [tx for tx in transactions if tx.status == "BLOCKED"]
+    suspicion_txs = [tx for tx in transactions if tx.status == "SUSPICION"]
     
     blocked_count = len(blocked_txs)
     suspicion_count = len(suspicion_txs)
@@ -221,7 +241,7 @@ def get_stats():
     
     # Clinics risk mapping: group by clinic and count blocked + suspicion
     clinic_anomalies = defaultdict(int)
-    for tx in db.transactions:
+    for tx in transactions:
         if tx.status in ["BLOCKED", "SUSPICION"]:
             clinic_anomalies[tx.payload.clinic_id] += 1
             
@@ -229,16 +249,14 @@ def get_stats():
     red_zone_clinics = [cid for cid, count in clinic_anomalies.items() if count >= 3]
     red_zone_count = len(red_zone_clinics)
 
-    # 1. Trend by day (last 7 days)
-    # Group by date
+    # 1. Trend by day
     days_data = defaultdict(lambda: {"approved": 0, "suspicion": 0, "blocked": 0})
-    for tx in db.transactions:
+    for tx in transactions:
         date_str = tx.payload.timestamp.strftime("%Y-%m-%d")
         status_key = tx.status.lower() # approved, suspicion, blocked
         days_data[date_str][status_key] += 1
         
     trend_by_day = []
-    # Fill in dates sorted
     for d_str in sorted(days_data.keys()):
         trend_by_day.append({
             "date": d_str,
@@ -247,13 +265,12 @@ def get_stats():
             "blocked": days_data[d_str]["blocked"]
         })
         
-    # If no data, populate with empty list
     if not trend_by_day:
         trend_by_day = [{"date": datetime.now().strftime("%Y-%m-%d"), "approved": 0, "suspicion": 0, "blocked": 0}]
 
     # 2. Region distribution
     region_data = defaultdict(lambda: {"approved": 0, "suspicion": 0, "blocked": 0})
-    for tx in db.transactions:
+    for tx in transactions:
         region = tx.clinic.region if tx.clinic else "Неизвестно"
         status_key = tx.status.lower()
         region_data[region][status_key] += 1
@@ -269,9 +286,9 @@ def get_stats():
         })
     region_distribution = sorted(region_distribution, key=lambda x: x["total"], reverse=True)
 
-    # 3. Top 5 scamming services (services with the most blocked/suspicion statuses)
+    # 3. Top 5 scamming services
     scam_services = []
-    for tx in db.transactions:
+    for tx in transactions:
         if tx.status in ["BLOCKED", "SUSPICION"] and tx.service:
             scam_services.append(tx.service.name)
             
@@ -299,14 +316,28 @@ def get_stats():
     }
 
 @router.get("/cases")
-def get_cases():
-    # Fetch fraud cases (BLOCKED or SUSPICION)
+def get_cases(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    transactions = db.transactions
+    if start_date:
+        try:
+            s_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            transactions = [tx for tx in transactions if tx.payload.timestamp >= s_dt]
+        except Exception:
+            pass
+    if end_date:
+        try:
+            e_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
+            transactions = [tx for tx in transactions if tx.payload.timestamp < e_dt]
+        except Exception:
+            pass
+
     cases = []
-    for tx in db.transactions:
+    for tx in transactions:
         if tx.status in ["BLOCKED", "SUSPICION"]:
             breadcrumbs = build_breadcrumbs(tx)
-            
-            # Risk level description
             risk_level = "High" if tx.status == "BLOCKED" else "Medium"
             
             cases.append({
@@ -322,6 +353,5 @@ def get_cases():
                 "breadcrumbs": breadcrumbs
             })
             
-    # Sort cases by timestamp descending
     cases = sorted(cases, key=lambda x: x["timestamp"], reverse=True)
     return cases

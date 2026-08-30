@@ -49,17 +49,29 @@ desktop.ini
 .tempmediaStorage/
 *.webm
 *.webp
-*.png
 *.jpg
 *.jpeg
 *.log
+!docs/screenshots/*.png
 
 # Sensitive design docs & scripts
 DESIGN.md
+PRESENTATION_DER.md
 docker-start.bat
 docker-start.sh
 docker-stop.bat
 docker-stop.sh
 *.bat
 *.sh
+
+# Data files & Raw datasets
+data/
+data/*
+
+# ML Binary Models & Weights
+*.joblib
+*.pkl
+*.onnx
+ml/models/*.joblib
+
 

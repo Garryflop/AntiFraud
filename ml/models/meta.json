@@ -1,0 +1,29 @@
+{
+  "model_type": "Hybrid IsolationForest + RandomForest Risk Classifier",
+  "dataset_size": 148604,
+  "total_amount_kzt": 373488268.76,
+  "roc_auc": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "feature_names": [
+    "upload_delay_hours",
+    "patient_age",
+    "patient_daily_velocity",
+    "cost_zscore_by_icd",
+    "provider_daily_volume",
+    "has_subcontractor",
+    "is_extra_service",
+    "Сумма"
+  ],
+  "feature_importances": {
+    "upload_delay_hours": 0.086,
+    "patient_age": 0.0113,
+    "patient_daily_velocity": 0.7704,
+    "cost_zscore_by_icd": 0.0236,
+    "provider_daily_volume": 0.0746,
+    "has_subcontractor": 0.0,
+    "is_extra_service": 0.0,
+    "Сумма": 0.0341
+  },
+  "trained_at": "2026-07-30T15:41:52.404747"
+}
