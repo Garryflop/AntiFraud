@@ -36,15 +36,22 @@ class MLEngine:
                      cost_zscore: float, provider_daily_volume: int, has_subcontractor: int,
                      is_extra: int, amount_kzt: float):
         if not self.is_loaded or self.scaler is None:
-            # Fallback estimation if model not loaded
-            risk = min(100.0, (patient_daily_velocity * 25.0) + (upload_delay_hours * 0.5) + (abs(cost_zscore) * 15.0))
+            # Calibrated fallback estimation when binary .joblib weights are excluded from Git
+            velocity_penalty = max(0.0, (patient_daily_velocity - 1) * 12.0)
+            delay_penalty = max(0.0, (upload_delay_hours - 24.0) * 0.4) if upload_delay_hours > 24 else 0.0
+            cost_penalty = max(0.0, (abs(cost_zscore) - 1.2) * 18.0) if abs(cost_zscore) > 1.2 else 0.0
+
+            risk = min(100.0, max(3.5, 3.5 + velocity_penalty + delay_penalty + cost_penalty))
+            level = "HIGH_RISK_FRAUD" if risk >= 65.0 else "SUSPICIOUS" if risk >= 30.0 else "NORMAL"
             return {
                 "risk_score_percent": round(risk, 1),
-                "anomaly_level": "HIGH_RISK_FRAUD" if risk > 70 else "SUSPICIOUS" if risk > 35 else "NORMAL",
+                "anomaly_level": level,
+                "probability": round(risk / 100.0, 4),
                 "feature_breakdown": {
-                    "velocity_factor": min(100, patient_daily_velocity * 20),
-                    "delay_factor": min(100, upload_delay_hours * 2),
-                    "cost_factor": min(100, abs(cost_zscore) * 20)
+                    "velocity_factor": round(min(100.0, (patient_daily_velocity - 1) * 15.0), 1) if patient_daily_velocity > 1 else 0.0,
+                    "upload_delay_factor": round(min(100.0, upload_delay_hours * 1.0), 1),
+                    "cost_deviation_factor": round(min(100.0, abs(cost_zscore) * 20.0), 1),
+                    "provider_volume_factor": round(min(100.0, provider_daily_volume * 1.5), 1)
                 }
             }
 
