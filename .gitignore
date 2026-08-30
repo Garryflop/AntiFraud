@@ -69,9 +69,8 @@ data/
 data/*
 
 # ML Binary Models & Weights
-*.joblib
 *.pkl
 *.onnx
-ml/models/*.joblib
+!ml/models/*.joblib
 
 
