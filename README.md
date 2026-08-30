@@ -10,23 +10,23 @@
 
 ```mermaid
 flowchart TD
-    subgraph MIS ["Медицинские Информационные Системы МИС"]
+    subgraph MIS [Медицинские Информационные Системы]
         MIS1["Damumed"]
         MIS2["KazMedInfo"]
         MIS3["КМИС"]
         MIS4["Региональные МИС РК"]
     end
 
-    subgraph GATEWAY ["АНТИФРОД ШЛЮЗ-ФИЛЬТР ФСМС"]
-        E1["1. Hard Rules Engine - ЗАГС, КНБ, Отпуска"]
-        E2["2. Hybrid ML Engine - IsoForest + RandomForest"]
-        E3["3. Real-time Audit Trail - Аналитика ДЭР"]
+    subgraph GATEWAY [АНТИФРОД ШЛЮЗ-ФИЛЬТР ФСМС]
+        E1["1. Hard Rules Engine (ЗАГС, КНБ, График отпусков)"]
+        E2["2. Hybrid ML Engine (IsoForest + RandomForest)"]
+        E3["3. Real-time Audit Trail (Интерактивная аналитика ДЭР)"]
     end
 
-    MIS -->|"Передача реестров услуг"| GATEWAY
+    MIS -->|"Передача реестров оказанных услуг (REST API)"| GATEWAY
 
-    GATEWAY -->|"Одобрено 95 процентами"| OK["Выплата средств ФСМС"]
-    GATEWAY -->|"Выявлены нарушения"| BLOCK["Авто-приостановка выплат и Отправка в ДЭР"]
+    GATEWAY -->|"Одобрено (95%)"| OK["Выплата средств ФСМС"]
+    GATEWAY -->|"Выявлены нарушения"| BLOCK["Авто-приостановка выплат и сигнал в ДЭР"]
 ```
 
 ### Принцип универсальной интеграции:
