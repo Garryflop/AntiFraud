@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Cpu, Activity, ShieldCheck, Database, Sliders, X, Sparkles, AlertTriangle } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function MLAnalyticsModal({ isOpen, onClose }) {
   const [modelInfo, setModelInfo] = useState(null);
   const [testPayload, setTestPayload] = useState({
@@ -23,7 +25,7 @@ export default function MLAnalyticsModal({ isOpen, onClose }) {
 
   const fetchModelInfo = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/ml/model-info');
+      const res = await fetch(`${API_BASE_URL}/api/v1/ml/model-info`);
       if (res.ok) {
         const data = await res.json();
         setModelInfo(data);
@@ -36,7 +38,7 @@ export default function MLAnalyticsModal({ isOpen, onClose }) {
   const runPredict = async () => {
     setPredicting(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/ml/predict', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/ml/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(testPayload)

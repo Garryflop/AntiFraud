@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, FileText, CheckCircle2, XCircle, Clock, AlertTriangle, X, Send, Gavel } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function DisputesRegistryModal({ isOpen, onClose }) {
   const [disputes, setDisputes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ export default function DisputesRegistryModal({ isOpen, onClose }) {
   const fetchDisputes = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/disputes');
+      const res = await fetch(`${API_BASE_URL}/api/v1/disputes`);
       if (res.ok) {
         const data = await res.json();
         setDisputes(data);
@@ -30,7 +32,7 @@ export default function DisputesRegistryModal({ isOpen, onClose }) {
 
   const handleResolve = async (disputeId, action) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/disputes/${disputeId}/resolve`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/disputes/${disputeId}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
