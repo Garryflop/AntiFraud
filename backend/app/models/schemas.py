@@ -7,6 +7,9 @@ class Patient(BaseModel):
     name: str
     gender: str  # "M" or "F"
     status: str  # "ACTIVE" or "DECEASED"
+    death_date: Optional[str] = None
+    birth_date: Optional[str] = None
+    region: Optional[str] = None
 
 class Doctor(BaseModel):
     iin: str

@@ -188,6 +188,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        API_BASE_URL,
         activeTab,
         setActiveTab,
         transactions,

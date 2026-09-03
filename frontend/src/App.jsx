@@ -13,6 +13,7 @@ import {
   HelpCircle,
   Globe,
   Users,
+  UserCheck,
   Building2,
   Layers,
   Cpu,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 
 import MLAnalyticsModal from './components/MLAnalyticsModal';
+import ZagsRegistry from './components/ZagsRegistry';
 
 export default function App() {
   const { activeTab, setActiveTab, stats } = useApp();
@@ -38,6 +40,8 @@ export default function App() {
         return <FraudCases />;
       case 'map':
         return <KazakhstanMap />;
+      case 'zags':
+        return <ZagsRegistry />;
       default:
         return <Dashboard />;
     }
@@ -113,6 +117,18 @@ export default function App() {
                 {stats.kpis.blocked_count + stats.kpis.suspicion_count}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('zags')}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-mono uppercase tracking-wider transition rounded-md ${
+              activeTab === 'zags'
+                ? 'bg-zinc-800 text-white font-bold border border-borderGrey'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <UserCheck size={14} className="text-purple-400" />
+            Сверка ЗАГС
           </button>
 
           <div className="h-6 w-px bg-[#362d59] my-auto mx-1" />

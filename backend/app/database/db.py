@@ -86,32 +86,43 @@ class InMemoryDatabase:
             )
 
         # 3. Seed Patients
-        # Generate some male and female patients, some deceased, and some with border crossings
         first_names_m = ["Нурсултан", "Бауыржан", "Алихан", "Арман", "Данияр", "Руслан", "Серик", "Асет", "Максат", "Тимур"]
         first_names_f = ["Айгерим", "Динара", "Мадина", "Аружан", "Сауле", "Жанар", "Камила", "Аида", "Зарина", "Гульнур"]
         last_names = ["Ахметов", "Ибрагимов", "Сулейменов", "Касымов", "Оспанов", "Смагулов", "Нурланов", "Алиев", "Садыков", "Омаров"]
+        regions_list = ["Семей", "Астана", "Алматы", "Шымкент", "Караганда", "Атырау", "Актобе", "Павлодар", "Костанай"]
 
         # Normal active male patients
-        for i in range(15):
+        for i in range(20):
             iin = f"9001{i:02d}300{random.randint(100, 999)}"
             name = f"{random.choice(last_names)} {random.choice(first_names_m)}"
-            self.patients[iin] = Patient(iin=iin, name=name, gender="M", status="ACTIVE")
+            b_date = f"1990-01-{(i % 28) + 1:02d}"
+            reg = random.choice(regions_list)
+            self.patients[iin] = Patient(iin=iin, name=name, gender="M", status="ACTIVE", birth_date=b_date, region=reg)
 
         # Normal active female patients
-        for i in range(15):
+        for i in range(20):
             iin = f"9202{i:02d}400{random.randint(100, 999)}"
-            name = f"{random.choice(last_names)}а {random.choice(first_names_f)}" # added "а" for female last names
-            self.patients[iin] = Patient(iin=iin, name=name, gender="F", status="ACTIVE")
+            name = f"{random.choice(last_names)}а {random.choice(first_names_f)}"
+            b_date = f"1992-02-{(i % 28) + 1:02d}"
+            reg = random.choice(regions_list)
+            self.patients[iin] = Patient(iin=iin, name=name, gender="F", status="ACTIVE", birth_date=b_date, region=reg)
 
-        # Deceased patients (Dead Souls)
-        deceased_names = [
-            ("800512300456", "Карабаев Ербол", "M"),
-            ("750824400789", "Смаилова Бахыт", "F"),
-            ("881205300123", "Жумабаев Марат", "M"),
-            ("620415400987", "Абдрахманова Роза", "F"),
+        # Deceased patients (Dead Souls in ZAGS registry)
+        deceased_records = [
+            ("800512300456", "Карабаев Ербол Аскарович", "M", "1980-05-12", "2023-11-14", "Семей"),
+            ("750824400789", "Смаилова Бахыт Касымовна", "F", "1975-08-24", "2024-02-08", "Астана"),
+            ("881205300123", "Жумабаев Марат Серикович", "M", "1988-12-05", "2022-09-30", "Алматы"),
+            ("620415400987", "Абдрахманова Роза Талгатовна", "F", "1962-04-15", "2023-05-19", "Семей"),
+            ("710310300551", "Турсынов Бахтияр Муратович", "M", "1971-03-10", "2024-01-12", "Шымкент"),
+            ("830919400223", "Нурпеисова Асем Болатовна", "F", "1983-09-19", "2023-08-25", "Караганда"),
+            ("591102300889", "Касымов Даулет Оспанович", "M", "1959-11-02", "2022-12-01", "Семей"),
+            ("950104400112", "Алиева Мадина Руслановна", "F", "1995-01-04", "2024-04-17", "Астана"),
         ]
-        for iin, name, gender in deceased_names:
-            self.patients[iin] = Patient(iin=iin, name=name, gender=gender, status="DECEASED")
+        for iin, name, gender, b_date, d_date, reg in deceased_records:
+            self.patients[iin] = Patient(
+                iin=iin, name=name, gender=gender, status="DECEASED",
+                birth_date=b_date, death_date=d_date, region=reg
+            )
 
         # 4. Seed Doctors
         specialties = ["Гинеколог", "Уролог", "Кардиолог", "Рентгенолог", "Терапевт"]
